@@ -11,6 +11,11 @@
 	<!--	<link rel="stylesheet" href="css/styles.css?v=1.0">-->
 	<style>
         body {
+            margin: 0;
+            font-family: sans-serif;
+        }
+
+        .sign-up {
             width: 100%;
             height: 100vh;
             display: flex;
@@ -19,12 +24,11 @@
             background: black;
         }
 
-        #title {
+        .sign-up #title {
             text-align: center;
             color: white;
-	        height: 120px;
+            height: 120px;
             margin: 0;
-            font-family: sans-serif;
             animation: myanim 5s infinite;
             font-size: 40px;
         }
@@ -38,35 +42,68 @@
             }
         }
 
-        .sign-up {
-	        width: 80px;
-	        align-self: center;
-	        color: white;
-	        background: black;
-	        border: 1px solid white;
-	        font-weight: bold;
-	        height: 40px;
+        .sign-up .sign-up-label {
+            align-self: center;
+            color: white;
+            margin: 10px;
+        }
+
+        .sign-up .sign-up-label input {
+            display: block;
+        }
+
+        .sign-up .sign-up-button {
+            width: 80px;
+            align-self: center;
+            color: white;
+            background: black;
+            border: 1px solid white;
+            font-weight: bold;
+            height: 40px;
         }
 	</style>
 </head>
 
 <body>
-<h1 id="title">Potato Stream</h1>
-<button class="sign-up">sign up</button>
+<div id="content">
+</div>
+
 <script>
   document.addEventListener('DOMContentLoaded', async function () {
-    const titleElement = document.getElementById('title');
-    await sleep(3000)
-    await writeWithDelay('', 'Are you Ready?', titleElement, 170);
-    await sleep(3000)
-    await writeWithDelay('', 'For the Stream of your Live!', titleElement, 170);
-    await sleep(3000)
-    await writeWithDelay('', 'Next Weekend!!', titleElement, 170);
-    await sleep(3000)
-    await writeWithDelay('', 'Potato Stream', titleElement, 170);
+    const contentElement = document.getElementById('content')
+    console.log(contentElement.innerHTML)
+    showPageSignUp(contentElement)
   });
 
-  function writeWithDelay(before, text, element, timeout, returnRes = null) {
+  async function showPageSignUp(contentElement) {
+    contentElement.innerHTML = `
+<div class="sign-up">
+	<h1 id="title">Potato Stream</h1>
+	<label class="sign-up-label">
+		Username
+		<input type="text" id="sign-up-username-input">
+	</label>
+	<button class="sign-up-button" id="sign-up-button">sign in</button>
+</div>
+    `
+
+    const signUpButton = document.getElementById('sign-up-button');
+    signUpButton.addEventListener('click', () => {
+      const inputEl = document.getElementById('sign-up-username-input');
+      console.dir(inputEl.value)
+    })
+
+    await sleep(3000)
+    await writeWithDelay('', 'Are you Ready?', 'title', 170);
+    await sleep(3000)
+    await writeWithDelay('', 'For the Stream of your Live!', 'title', 170);
+    await sleep(3000)
+    await writeWithDelay('', 'Next Weekend!!', 'title', 170);
+    await sleep(3000)
+    await writeWithDelay('', 'Potato Stream', 'title', 170);
+  }
+
+  function writeWithDelay(before, text, elementId, timeout, returnRes = null) {
     let res, promise;
 
     if (returnRes === null) {
@@ -77,8 +114,12 @@
     if (text && text.length > 0) {
       setTimeout(() => {
         before += text.charAt(0);
+        const element = document.getElementById('title');
+        if (element === undefined) {
+          return;
+        }
         element.innerText = before;
-        writeWithDelay(before, text.slice(1), element, timeout, res)
+        writeWithDelay(before, text.slice(1), elementId, timeout, res)
       }, timeout);
     } else {
       res();
