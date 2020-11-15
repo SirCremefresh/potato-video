@@ -1,10 +1,11 @@
 import {Module} from '@nestjs/common';
 import {ConfigModule, ConfigService} from '@nestjs/config';
 import {TypeOrmModule, TypeOrmModuleOptions} from '@nestjs/typeorm';
-import path from 'path';
+import * as path from 'path';
 import {AppController} from './app.controller';
 import {AppService} from './app.service';
 import configuration from './config/configuration';
+import {LoginController} from './login/login.controller';
 
 @Module({
   imports: [
@@ -30,7 +31,7 @@ import configuration from './config/configuration';
       inject: [ConfigService],
     }),
   ],
-  controllers: [AppController],
+  controllers: [AppController, LoginController],
   providers: [AppService],
 })
 export class AppModule {
