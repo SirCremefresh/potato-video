@@ -24,6 +24,8 @@ export class AppController {
     const fileSize = stat.size;
     const range = req.headers.range;
 
+    console.log(`got request with range: ${range}`)
+
     if (range) {
       const parts = range.replace(/bytes=/, '').split('-');
       const start = parseInt(parts[0], 10);

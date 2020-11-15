@@ -1,0 +1,15 @@
+version: '3'
+services:
+  database:
+    image: postgres:12-alpine
+    restart: unless-stopped
+    environment:
+      - "POSTGRES_USER=potato-video"
+      - "POSTGRES_PASSWORD=this-is-a-dev-environment-password"
+    ports:
+      - 5432:5432
+    volumes:
+      - database-data:/var/lib/postgresql/data
+
+volumes:
+  database-data:
