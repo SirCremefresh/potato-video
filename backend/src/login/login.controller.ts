@@ -1,6 +1,5 @@
-import {Body, Controller, Post, Res} from '@nestjs/common';
+import {Body, Controller, Post} from '@nestjs/common';
 import * as crypto from 'crypto';
-import {Response} from 'express';
 import {WatcherEntity} from '../entities/watcher.entity';
 import {generateId} from '../utils/generate-id.helper';
 
@@ -8,9 +7,9 @@ import {generateId} from '../utils/generate-id.helper';
 export class LoginController {
   @Post('watcher')
   public async register(
-    @Body() loginData: { username: string },
-    @Res() res: Response
+    @Body() loginData: { username: string }
   ): Promise<{ username: string, secretToken: string, watcherId: string }> {
+    console.log(`New Watcher: ${loginData?.username}`);
     const secretToken = generateId();
     const watcherEntity = new WatcherEntity();
     watcherEntity.username = loginData.username;

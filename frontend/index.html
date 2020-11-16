@@ -8,7 +8,6 @@
 	<meta name="description" content="Potato Quality Streaming">
 	<meta name="author" content="Donato Wolfisberg">
 
-	<!--	<link rel="stylesheet" href="css/styles.css?v=1.0">-->
 	<style>
         body {
             margin: 0;
@@ -69,9 +68,14 @@
 </div>
 
 <script>
+  const storageKeys = {
+    USERNAME: 'USERNAME',
+    SECRET_TOKEN: 'SECRET_TOKEN',
+    WATCHER_ID: 'WATCHER_ID',
+  }
+
   document.addEventListener('DOMContentLoaded', async function () {
     const contentElement = document.getElementById('content')
-    console.log(contentElement.innerHTML)
     showPageSignUp(contentElement)
   });
 
@@ -88,9 +92,19 @@
     `
 
     const signUpButton = document.getElementById('sign-up-button');
-    signUpButton.addEventListener('click', () => {
+    signUpButton.addEventListener('click', async () => {
       const inputEl = document.getElementById('sign-up-username-input');
-      console.dir(inputEl.value)
+
+      if (!inputEl.value || inputEl.value.length < 5) {
+        alert('Username needs to be at least 5 Characters long')
+        return;
+      }
+
+      const data = await postData('http://localhost:8080/login/watcher', {username: inputEl.value});
+      console.log(`Got userDate: ${JSON.stringify(data)}`);
+      localStorage.setItem(storageKeys.USERNAME, data.username);
+      localStorage.setItem(storageKeys.SECRET_TOKEN, data.secretToken);
+      localStorage.setItem(storageKeys.WATCHER_ID, data.watcherId);
     })
 
     await sleep(3000)
@@ -101,6 +115,17 @@
     await writeWithDelay('', 'Next Weekend!!', 'title', 170);
     await sleep(3000)
     await writeWithDelay('', 'Potato Stream', 'title', 170);
+  }
+
+  async function postData(url = '', data = {}) {
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(data) // body data type must match "Content-Type" header
+    });
+    return response.json(); // parses JSON response into native JavaScript objects
   }
 
   function writeWithDelay(before, text, elementId, timeout, returnRes = null) {
