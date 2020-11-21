@@ -160,7 +160,7 @@
         return;
       }
 
-      const data = await postData('http://localhost:8080/login/watcher', {
+      const data = await postData('/login/watcher', {
         username: inputEl.value,
         watchToken: watchInputEl.value
       });

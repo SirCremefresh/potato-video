@@ -40,7 +40,7 @@
   }
 
   async function createGame() {
-    const watchData = await postData('http://localhost:8080/watch');
+    const watchData = await postData('/watch');
     localStorage.setItem(storageKeys.WATCH_TOKEN, watchData.watchToken)
     localStorage.setItem(storageKeys.WATCH_ID, watchData.watchId)
     localStorage.setItem(storageKeys.SECRET_TOKEN, watchData.secretToken);
@@ -55,7 +55,7 @@
       return;
     }
 
-    const videoData = await postData('http://localhost:8080/watch/video', {
+    const videoData = await postData('/watch/video', {
       secretToken: localStorage.getItem(storageKeys.SECRET_TOKEN),
       watchId: localStorage.getItem(storageKeys.WATCH_ID),
       videoUrl: videoInputEl.value
@@ -71,7 +71,7 @@
   }
 
   async function loadPlaylist() {
-    const videoData = await postData('http://localhost:8080/watch/info', {
+    const videoData = await postData('/watch/info', {
       secretToken: localStorage.getItem(storageKeys.SECRET_TOKEN),
       watchId: localStorage.getItem(storageKeys.WATCH_ID),
     })
@@ -82,7 +82,7 @@ ${videoData.playlist
   }
 
   async function startPlay() {
-    console.log(await postData('http://localhost:8080/watch/play', {
+    console.log(await postData('/watch/play', {
       secretToken: localStorage.getItem(storageKeys.SECRET_TOKEN),
       watchId: localStorage.getItem(storageKeys.WATCH_ID),
     }))
