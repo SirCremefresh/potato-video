@@ -9,6 +9,7 @@ RUN npm run build:prod
 
 
 FROM node:15-buster
+WORKDIR /app
 LABEL maintainer="<donato@wolfisberg.dev>"
 LABEL maintainer_name="Donato Wolfisberg"
 
