@@ -17,13 +17,15 @@
 	<div style="width: 40%; display: inline-block">
 		<h1>watch</h1>
 		<button onclick="createGame()">createGame</button>
-		<span id="watch-token">Watch Token: </span>>
+		<span id="watch-token">Watch Token: </span>
 		<h1>Add Video</h1>
 		<label>
 			Add Video
 			<input type="text" id="add-video-input">
 		</label>
 		<button onclick="addVideo()">Load Video</button>
+		<h1>Actions</h1>
+		<button onclick="startPlay()">Play</button>
 	</div>
 	<div style="width: 40%; display: inline-block" id="playilist-content">
 
@@ -77,6 +79,13 @@
 ${videoData.playlist
       .map(video => `<li data-video-id="${video.videoId}">${video.fulltitle} <img src="${video.thumbnail}" alt=""></li>`)}
       </ul>`
+  }
+
+  async function startPlay() {
+    console.log(await postData('http://localhost:8080/watch/play', {
+      secretToken: localStorage.getItem(storageKeys.SECRET_TOKEN),
+      watchId: localStorage.getItem(storageKeys.WATCH_ID),
+    }))
   }
 
   async function postData(url = '', data = {}) {

@@ -1,13 +1,17 @@
-import {BadRequestException, Body, Controller, NotFoundException, Post} from '@nestjs/common';
+import {BadRequestException, Body, Controller, Inject, NotFoundException, Post} from '@nestjs/common';
 import {exec} from 'child_process';
 import * as fs from 'fs';
 import {WatchEntity} from '../entities/watch.entity';
 import {generateId} from '../utils/generate-id.helper';
+import {WatcherService} from '../watcher/watcher.service';
 
 const crypto = require('crypto');
 
 @Controller('watch')
 export class WatchController {
+  constructor(@Inject(WatcherService) private watcherService: WatcherService) {
+  }
+
   @Post()
   public async createWatch(): Promise<{
     secretToken: string,
@@ -28,6 +32,7 @@ export class WatchController {
       watchToken: watchEntity.watchToken
     };
     console.log('Created new watch with data: ', watchData);
+    this.watcherService.watchesInfo.set(watchEntity.watchId, []);
     return watchData;
   }
 
@@ -37,7 +42,6 @@ export class WatchController {
     watchId: string,
     videoUrl: string
   }): Promise<{}> {
-
     const watch = await WatchEntity.findOne({
       watchId: videoData.watchId
     });
@@ -76,6 +80,29 @@ export class WatchController {
     watch.playlist = JSON.stringify(newPlaylist);
     await watch.save();
     return videoInfo;
+  }
+
+  @Post('play')
+  public async play(@Body() videoData: {
+    secretToken: string,
+    watchId: string,
+  }) {
+    const watch = await WatchEntity.findOne({
+      watchId: videoData.watchId
+    });
+
+    if (!watch) {
+      console.log(`could not find watch videoData: `, videoData);
+      throw new NotFoundException('Could not find Watch');
+    }
+
+    if (watch.secretTokenHash !== this.hashString(videoData.secretToken)) {
+      console.log(`Secret Tokens do not match: `, videoData);
+      throw new NotFoundException('Secret Token did not match');
+    }
+
+    this.watcherService.play(watch.watchId);
+    return {status: 'ok'}
   }
 
   @Post('info')

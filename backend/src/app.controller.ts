@@ -1,4 +1,4 @@
-import {Controller, Get, Req, Res} from '@nestjs/common';
+import {Controller, Get, Param, Req, Res} from '@nestjs/common';
 import {Request, Response} from 'express';
 import * as fs from 'fs';
 import {AppService} from './app.service';
@@ -8,23 +8,15 @@ export class AppController {
   constructor(private readonly appService: AppService) {
   }
 
-  @Get()
-  getHello(): string {
-    return this.appService.getHello();
-  }
-
-  @Get('file')
-  // setFile(@Response() resp: Response) {
-  setFile(@Req() req: Request, @Res() res: Response) {
-    // const filename = __dirname + req.url;
-    const filename = '/home/donato/git/potato-video/backend/asdfmovie13-QL3H7CUJMDU.mp4';
-    // This line opens the file as a readable stream
+  @Get('video/:videoId/watch.mp4')
+  setFile(@Param('videoId') videoId: string, @Req() req: Request, @Res() res: Response) {
+    const filename = `/tmp/videos/${videoId}`;
 
     const stat = fs.statSync(filename);
     const fileSize = stat.size;
     const range = req.headers.range;
 
-    console.log(`got request with range: ${range}`)
+    console.log(`got request with range: ${range}`);
 
     if (range) {
       const parts = range.replace(/bytes=/, '').split('-');

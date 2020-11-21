@@ -7,7 +7,7 @@
 	<title>The Potato Quality Stream</title>
 	<meta name="description" content="Potato Quality Streaming">
 	<meta name="author" content="Donato Wolfisberg">
-
+	<script src="https://cdn.socket.io/socket.io-2.3.1.js"></script>
 	<style>
         body {
             margin: 0;
@@ -21,6 +21,23 @@
             flex-direction: column;
             justify-content: center;
             background: black;
+        }
+
+        .video-page {
+            width: 100%;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            background: black;
+        }
+
+        .video-page #title {
+            text-align: center;
+            color: white;
+            height: 120px;
+            margin: 0;
+            font-size: 40px;
         }
 
         .sign-up #title {
@@ -75,12 +92,45 @@
     WATCH_ID: 'WATCH_ID',
   }
 
+  const socket = io();
+
+  socket.on('connect', () => {
+    console.log('Conected')
+  });
+
+  socket.on('error', (e) => {
+    console.log('An error happened: ', e)
+  });
+
+  socket.on('watch_play', (e) => {
+    console.log(e);
+    const contentElement = document.getElementById('content')
+    contentElement.innerHTML = `
+<div class="video-page">
+	<video src="/video/${e.videoId}/watch.mp4"  type="video/mp4" autoplay></video>
+</div>
+    `;
+  })
+
   document.addEventListener('DOMContentLoaded', async function () {
     const contentElement = document.getElementById('content')
     showPageSignUp(contentElement)
   });
 
+  async function showVideoPage(contentElement) {
+    socket.emit('login', {
+      secretToken: localStorage.getItem(storageKeys.SECRET_TOKEN),
+      watcherId: localStorage.getItem(storageKeys.WATCHER_ID)
+    })
+    contentElement.innerHTML = `
+<div class="video-page">
+	<h1 id="title">Video Page</h1>
+</div>
+    `;
+  }
+
   async function showPageSignUp(contentElement) {
+    let onPage = {is: true};
     contentElement.innerHTML = `
 <div class="sign-up">
 	<h1 id="title">Potato Stream</h1>
@@ -110,22 +160,27 @@
         return;
       }
 
-      const data = await postData('http://localhost:8080/login/watcher', {username: inputEl.value, watchToken: watchInputEl.value});
+      const data = await postData('http://localhost:8080/login/watcher', {
+        username: inputEl.value,
+        watchToken: watchInputEl.value
+      });
       console.log(`Got userDate: ${JSON.stringify(data)}`);
       localStorage.setItem(storageKeys.USERNAME, data.username);
       localStorage.setItem(storageKeys.SECRET_TOKEN, data.secretToken);
       localStorage.setItem(storageKeys.WATCHER_ID, data.watcherId);
       localStorage.setItem(storageKeys.WATCH_ID, data.watchId);
+      onPage.is = false;
+      showVideoPage(contentElement);
     })
 
     await sleep(3000)
-    await writeWithDelay('', 'Are you Ready?', 'title', 170);
+    await writeWithDelay('', 'Are you Ready?', 'title', 170, onPage);
     await sleep(3000)
-    await writeWithDelay('', 'For the Stream of your Live!', 'title', 170);
+    await writeWithDelay('', 'For the Stream of your Live!', 'title', 170, onPage);
     await sleep(3000)
-    await writeWithDelay('', 'Now!!', 'title', 170);
+    await writeWithDelay('', 'Now!!', 'title', 170, onPage);
     await sleep(3000)
-    await writeWithDelay('', 'Potato Stream', 'title', 170);
+    await writeWithDelay('', 'Potato Stream', 'title', 170, onPage);
   }
 
   async function postData(url = '', data = {}) {
@@ -139,7 +194,7 @@
     return response.json(); // parses JSON response into native JavaScript objects
   }
 
-  function writeWithDelay(before, text, elementId, timeout, returnRes = null) {
+  function writeWithDelay(before, text, elementId, timeout, stillOnPage, returnRes = null) {
     let res, promise;
 
     if (returnRes === null) {
@@ -147,15 +202,22 @@
     } else {
       res = returnRes;
     }
+    if (stillOnPage.is === false) {
+      res();
+      return;
+    }
     if (text && text.length > 0) {
       setTimeout(() => {
+        if (stillOnPage.is === false) {
+          return;
+        }
         before += text.charAt(0);
         const element = document.getElementById('title');
         if (element === undefined) {
           return;
         }
         element.innerText = before;
-        writeWithDelay(before, text.slice(1), elementId, timeout, res)
+        writeWithDelay(before, text.slice(1), elementId, timeout, stillOnPage, res)
       }, timeout);
     } else {
       res();
