@@ -60,13 +60,14 @@ export class WatchController {
 
     try {
       const result = await this.executeCommand(`cd /tmp/videos && youtube-dl -o ${videoId} --write-info-json ${videoData.videoUrl}`);
-      console.log(result);
+      console.log('result of youtube-dl is: ', result);
     } catch (e) {
       return new BadRequestException('could not download video: ', e);
     }
 
+    console.log('reading info file');
     let infoFile = JSON.parse(fs.readFileSync(`/tmp/videos/${videoId}.info.json`, {encoding: 'utf8'}));
-    console.log(infoFile);
+    console.log('info file read');
     const videoInfo = {
       fulltitle: infoFile.fulltitle,
       thumbnail: infoFile.thumbnail,
@@ -78,6 +79,7 @@ export class WatchController {
     const newPlaylist = JSON.parse(watch.playlist);
     newPlaylist.push(videoInfo);
     watch.playlist = JSON.stringify(newPlaylist);
+    console.log('new playlist is: ', watch.playlist, videoInfo);
     await watch.save();
     return videoInfo;
   }
@@ -102,7 +104,7 @@ export class WatchController {
     }
 
     this.watcherService.play(watch.watchId);
-    return {status: 'ok'}
+    return {status: 'ok'};
   }
 
   @Post('info')

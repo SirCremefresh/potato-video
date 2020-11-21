@@ -23,6 +23,7 @@ RUN apt-get update -y \
     && apt-get clean -y \
     && curl -L https://yt-dl.org/downloads/latest/youtube-dl \
         -o /usr/local/bin/youtube-dl \
+    && chmod +x /usr/local/bin/youtube-dl \
     && rm -rf \
         /tmp/* \
         /var/tmp/* \
