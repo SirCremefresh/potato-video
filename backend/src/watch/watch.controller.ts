@@ -59,7 +59,9 @@ export class WatchController {
     const videoId = generateId();
 
     try {
-      const result = await this.executeCommand(`cd /tmp/videos && youtube-dl -o ${videoId} --write-info-json ${videoData.videoUrl}`);
+      console.log('Executing command');
+      const result = await this.executeCommand(`cd /tmp/videos && youtube-dl -o ${videoId} --restrict-filenames --write-info-json "${videoData.videoUrl}"`);
+
       console.log('result of youtube-dl is: ', result);
     } catch (e) {
       return new BadRequestException('could not download video: ', e);
