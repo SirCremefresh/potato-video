@@ -32,6 +32,7 @@ RUN apt-get update -y \
 COPY ./package*.json ./
 RUN npm ci --only=production
 
+COPY ./public /app/public
 COPY --from=builder /app/dist ./dist
 
 EXPOSE 8080
