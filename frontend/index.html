@@ -72,6 +72,7 @@
     USERNAME: 'USERNAME',
     SECRET_TOKEN: 'SECRET_TOKEN',
     WATCHER_ID: 'WATCHER_ID',
+    WATCH_ID: 'WATCH_ID',
   }
 
   document.addEventListener('DOMContentLoaded', async function () {
@@ -84,6 +85,10 @@
 <div class="sign-up">
 	<h1 id="title">Potato Stream</h1>
 	<label class="sign-up-label">
+		Watch Token
+		<input type="text" id="sign-up-watch-token-input">
+	</label>
+	<label class="sign-up-label">
 		Username
 		<input type="text" id="sign-up-username-input">
 	</label>
@@ -94,17 +99,23 @@
     const signUpButton = document.getElementById('sign-up-button');
     signUpButton.addEventListener('click', async () => {
       const inputEl = document.getElementById('sign-up-username-input');
+      const watchInputEl = document.getElementById('sign-up-watch-token-input');
 
       if (!inputEl.value || inputEl.value.length < 5) {
         alert('Username needs to be at least 5 Characters long')
         return;
       }
+      if (!watchInputEl.value || watchInputEl.value.length < 5) {
+        alert('Watch Input needs to specified')
+        return;
+      }
 
-      const data = await postData('http://localhost:8080/login/watcher', {username: inputEl.value});
+      const data = await postData('http://localhost:8080/login/watcher', {username: inputEl.value, watchToken: watchInputEl.value});
       console.log(`Got userDate: ${JSON.stringify(data)}`);
       localStorage.setItem(storageKeys.USERNAME, data.username);
       localStorage.setItem(storageKeys.SECRET_TOKEN, data.secretToken);
       localStorage.setItem(storageKeys.WATCHER_ID, data.watcherId);
+      localStorage.setItem(storageKeys.WATCH_ID, data.watchId);
     })
 
     await sleep(3000)
@@ -112,7 +123,7 @@
     await sleep(3000)
     await writeWithDelay('', 'For the Stream of your Live!', 'title', 170);
     await sleep(3000)
-    await writeWithDelay('', 'Next Weekend!!', 'title', 170);
+    await writeWithDelay('', 'Now!!', 'title', 170);
     await sleep(3000)
     await writeWithDelay('', 'Potato Stream', 'title', 170);
   }

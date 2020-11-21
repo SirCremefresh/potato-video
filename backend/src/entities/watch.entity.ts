@@ -1,20 +1,17 @@
 import {BaseEntity, Column, Entity, PrimaryColumn} from 'typeorm';
 import {generateId} from '../utils/generate-id.helper';
 
-@Entity('watchers')
-export class WatcherEntity extends BaseEntity {
+@Entity('watches')
+export class WatchEntity extends BaseEntity {
   @PrimaryColumn()
-  public watcherId: string = generateId();
-
-  @Column({nullable: false})
-  public username!: string;
+  public watchId: string = generateId();
 
   @Column({nullable: false})
   public watchToken!: string;
 
   @Column({nullable: false})
-  public watchId!: string;
+  public secretTokenHash!: string;
 
   @Column({nullable: false})
-  public secretTokenHash!: string;
+  public playlist: string = "[]";
 }

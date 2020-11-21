@@ -1,0 +1,99 @@
+<!doctype html>
+
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+
+	<title>The Potato Quality Stream</title>
+	<meta name="description" content="Potato Quality Streaming">
+	<meta name="author" content="Donato Wolfisberg">
+
+	<style>
+	</style>
+</head>
+
+<body>
+<div id="content" style="display: flex;">
+	<div style="width: 40%; display: inline-block">
+		<h1>watch</h1>
+		<button onclick="createGame()">createGame</button>
+		<span id="watch-token">Watch Token: </span>>
+		<h1>Add Video</h1>
+		<label>
+			Add Video
+			<input type="text" id="add-video-input">
+		</label>
+		<button onclick="addVideo()">Load Video</button>
+	</div>
+	<div style="width: 40%; display: inline-block" id="playilist-content">
+
+	</div>
+</div>
+
+<script>
+  const storageKeys = {
+    SECRET_TOKEN: 'ADMIN_SECRET_TOKEN',
+    WATCH_TOKEN: 'ADMIN_WATCH_TOKEN',
+    WATCH_ID: 'ADMIN_WATCH_ID',
+  }
+
+  async function createGame() {
+    const watchData = await postData('http://localhost:8080/watch');
+    localStorage.setItem(storageKeys.WATCH_TOKEN, watchData.watchToken)
+    localStorage.setItem(storageKeys.WATCH_ID, watchData.watchId)
+    localStorage.setItem(storageKeys.SECRET_TOKEN, watchData.secretToken);
+    displayWatchToken();
+  }
+
+  async function addVideo() {
+    const videoInputEl = document.getElementById('add-video-input');
+
+    if (!videoInputEl.value || videoInputEl.value.length < 5) {
+      alert('Video Input must be set')
+      return;
+    }
+
+    const videoData = await postData('http://localhost:8080/watch/video', {
+      secretToken: localStorage.getItem(storageKeys.SECRET_TOKEN),
+      watchId: localStorage.getItem(storageKeys.WATCH_ID),
+      videoUrl: videoInputEl.value
+    });
+
+    console.log(videoData);
+    setTimeout(loadPlaylist, 100)
+  }
+
+  function displayWatchToken() {
+    document.getElementById('watch-token').textContent =
+      `Watch Token: ${localStorage.getItem(storageKeys.WATCH_TOKEN)}`;
+  }
+
+  async function loadPlaylist() {
+    const videoData = await postData('http://localhost:8080/watch/info', {
+      secretToken: localStorage.getItem(storageKeys.SECRET_TOKEN),
+      watchId: localStorage.getItem(storageKeys.WATCH_ID),
+    })
+    document.getElementById('playilist-content').innerHTML = `<ul>
+${videoData.playlist
+      .map(video => `<li data-video-id="${video.videoId}">${video.fulltitle} <img src="${video.thumbnail}" alt=""></li>`)}
+      </ul>`
+  }
+
+  async function postData(url = '', data = {}) {
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(data)
+    });
+    return response.json();
+  }
+
+  if (localStorage.getItem(storageKeys.WATCH_ID) != null) {
+    displayWatchToken();
+    loadPlaylist();
+  }
+</script>
+</body>
+</html>

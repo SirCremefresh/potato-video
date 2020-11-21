@@ -6,6 +6,7 @@ import {AppController} from './app.controller';
 import {AppService} from './app.service';
 import configuration from './config/configuration';
 import {LoginController} from './login/login.controller';
+import { WatchController } from './watch/watch.controller';
 
 @Module({
   imports: [
@@ -31,7 +32,7 @@ import {LoginController} from './login/login.controller';
       inject: [ConfigService],
     }),
   ],
-  controllers: [AppController, LoginController],
+  controllers: [AppController, LoginController, WatchController],
   providers: [AppService],
 })
 export class AppModule {
